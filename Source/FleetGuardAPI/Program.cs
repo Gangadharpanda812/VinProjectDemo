@@ -2,7 +2,6 @@
 using Application;
 using Application.Interface;
 using AspNetCoreRateLimit;
-using Domain;
 using FleetGuardAPI.Middleware;
 using FleetGuardAPI.Models;
 using Infrastructure;
@@ -25,13 +24,9 @@ namespace FleetGuardAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             
-            builder.Services.AddApplicationServices();
-            builder.Services.AddInfrastructureServices();
+            builder.Services.AddApplicationServices(builder.Configuration);
+           
 
             #region Logging with serilog
 

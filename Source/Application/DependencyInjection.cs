@@ -1,5 +1,7 @@
 ﻿using Application.Interface;
 using Application.Services;
+using Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,8 +15,11 @@ namespace Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services,IConfiguration configuration)
         {
+            services.AddInfrastructureServices(configuration);
+            // Add services to the container.
+
             services.AddScoped<IVehicleServices, VehicleServices>();
             services.AddScoped<IApilogsServices, ApilogsServices>();
             services.AddScoped<IReportService, ReportService>();
