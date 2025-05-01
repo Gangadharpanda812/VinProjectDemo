@@ -14,10 +14,14 @@ namespace FleetGuardAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ErrorHandlingMiddleware> _logger;
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+        //private const string API_KEY_HEADER = "X-API-Key";
+        //private readonly string _configuredApiKey;
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IConfiguration configuration)
         {
             _next = next;
             _logger = logger;
+           // _configuredApiKey = configuration?["FleetGuard:ApiKey"]??""; 
+
         }
 
         public async Task Invoke(HttpContext context)
@@ -25,6 +29,21 @@ namespace FleetGuardAPI.Middleware
 
             try
             {
+                //validate for Unauthorized
+                //if (!context.Request.Headers.TryGetValue(API_KEY_HEADER, out var extractedApiKey))
+                //{
+                //    context.Response.StatusCode = 401; // Unauthorized
+                //    await context.Response.WriteAsync("API Key was not provided.");
+                //    return;
+                //}
+
+                //if (!_configuredApiKey.Equals(extractedApiKey))
+                //{
+                //    context.Response.StatusCode = 403; // Forbidden
+                //    await context.Response.WriteAsync("Unauthorized client.");
+                //    return;
+                //}
+
                 await _next(context); // Continue to next middleware
             }
             catch (Exception ex)
