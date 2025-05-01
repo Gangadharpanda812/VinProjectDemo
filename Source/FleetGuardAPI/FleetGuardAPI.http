@@ -1,0 +1,49 @@
+### 20 Requests to API
+@FleetGuardAPI_HostAddress = https://localhost:7274/api/v1
+
+### 1
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 2
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 3
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 4
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 5
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 6
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 7
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 8
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 9
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 10
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 11
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
+Accept: application/json
+
+### 12
+GET {{FleetGuardAPI_HostAddress}}/vehicle/5YJSA1DP7DFP14705
