@@ -2,6 +2,7 @@
 using Application;
 using Application.Interface;
 using AspNetCoreRateLimit;
+using Domain;
 using FleetGuardAPI.Middleware;
 using FleetGuardAPI.Models;
 using Infrastructure;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using Shared.DTO;
 using System.Globalization;
 namespace FleetGuardAPI
 {
@@ -136,16 +138,20 @@ namespace FleetGuardAPI
 
                 return Results.Ok(vehicle);
             })
-            .WithName("GetVehicleByVin");
+            .WithName("GetVehicleByVin")
+            .Produces<ApiError>(StatusCodes.Status400BadRequest) // Invalid Request
+            .Produces<ApiError>(StatusCodes.Status422UnprocessableEntity) // Validation Error
+            .Produces<ApiError>(StatusCodes.Status404NotFound) // Not Found
+            .Produces<VehicleDto>(StatusCodes.Status200OK); // Successful Response;
 
-           
+
             app.MapGet("/api/v1/Analytics/GetTop5Vininfo", async (IReportService reportService, ILogger<Program> logger) =>
             {
                 var Result = await reportService.GetTop5VehiclesByVin();
 
                 if (Result == null)
                 {
-                    
+
                     var errorResponse = new ApiError
                     {
                         Error = new ApiError.ErrorDetails
@@ -159,9 +165,10 @@ namespace FleetGuardAPI
                 }
 
                 return Results.Ok(Result);
-            });
+            })
+            .Produces<ApiError>(StatusCodes.Status404NotFound) // Not Found
+            .Produces<TopVinDto>(StatusCodes.Status200OK); // Successful Response;;
 
-            
             app.MapGet("/api/v1/Analytics/GetHourlyLogCountinfo", async (IReportService reportService, ILogger<Program> logger) =>
             {
                 var Result = await reportService.GetHourlyLogCountinfo();
@@ -182,9 +189,13 @@ namespace FleetGuardAPI
                 }
 
                 return Results.Ok(Result);
-            });
+            })
+            .Produces<ApiError>(StatusCodes.Status404NotFound) // Not Found
+            .Produces<HourlyLogCountDto>(StatusCodes.Status200OK); // Successful Response
+                                                           
 
-            
+
+
             app.MapGet("/api/v1/Analytics/GetRequestSummaryinfo", async (IReportService reportService, ILogger<Program> logger) =>
             {
                 var Result = await reportService.GetAnalyticSummaryinfo();
@@ -205,7 +216,9 @@ namespace FleetGuardAPI
                 }
 
                 return Results.Ok(Result);
-            });
+            })
+            .Produces<ApiError>(StatusCodes.Status404NotFound) // Not Found
+            .Produces<AnalyticsStatsDto>(StatusCodes.Status200OK); // Successful Response
 
 
             // Configure the HTTP request pipeline.
