@@ -3,11 +3,15 @@ using Application;
 using Application.Interface;
 using AspNetCoreRateLimit;
 using FleetGuardAPI.Middleware;
+using FleetGuardAPI.Models;
 using Infrastructure;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -46,13 +50,13 @@ namespace FleetGuardAPI
 
             #region Configure rate limiting options
            
-            builder.Services.AddLogging();
-            builder.Services.AddOptions();
-            builder.Services.AddMemoryCache();
-            builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
-            builder.Services.Configure<IpRateLimitPolicies>(builder.Configuration.GetSection("IpRateLimiting"));
-            builder.Services.AddInMemoryRateLimiting();
-            builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+                builder.Services.AddLogging();
+                builder.Services.AddOptions();
+                builder.Services.AddMemoryCache();
+                builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+                builder.Services.Configure<IpRateLimitPolicies>(builder.Configuration.GetSection("IpRateLimiting"));
+                builder.Services.AddInMemoryRateLimiting();
+                builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             #endregion
 
             builder.Services.AddControllers();
@@ -66,16 +70,35 @@ namespace FleetGuardAPI
 
             app.UseIpRateLimiting();
 
+            app.UseMiddleware<LoggingMiddleware>();
+
             app.MapGet("/api/v1/vehicle/{vin}", async (string vin, IVehicleServices vehicleServices, ILogger<Program> logger) =>
             {
                 if (string.IsNullOrWhiteSpace(vin))
                 {
-                    return Results.BadRequest("Invalid Vin");
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "invalid_request",
+                            Message = $"invalid request"
+                        }
+                    };
+                    return Results.BadRequest(errorResponse);
                 }
 
                 if (vin.Length != 17)
                 {
-                    return Results.BadRequest($"Invalid Vin Length {vin.Length}. Please enter a valid 17-digit Vin.");
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "invalid_vin",
+                            Message = $"Invalid Vin Length {vin.Length}. Please enter a valid 17-digit Vin."
+                        }
+                    };
+
+                    return Results.UnprocessableEntity(errorResponse);
                 }
 
                 logger.LogInformation($"Received Vin: {vin}");
@@ -84,21 +107,40 @@ namespace FleetGuardAPI
 
                 if (vehicle == null)
                 {
-                    return Results.NotFound($"Vehicle with VIN {vin} not found.");
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "not_found",
+                            Message = $"Vehicle with VIN {vin} not found"
+                        }
+                    };
+
+                    return Results.NotFound(errorResponse);
                 }
 
                 return Results.Ok(vehicle);
             })
             .WithName("GetVehicleByVin");
 
-            
+           
             app.MapGet("/api/v1/Analytics/GetTop5Vininfo", async (IReportService reportService, ILogger<Program> logger) =>
             {
                 var Result = await reportService.GetTop5VehiclesByVin();
 
                 if (Result == null)
                 {
-                    return Results.NotFound($"No Record found.");
+                    
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "not_found",
+                            Message = $"No Record found."
+                        }
+                    };
+
+                    return Results.NotFound(errorResponse);
                 }
 
                 return Results.Ok(Result);
@@ -111,7 +153,17 @@ namespace FleetGuardAPI
 
                 if (Result == null)
                 {
-                    return Results.NotFound($"No Record found.");
+
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "not_found",
+                            Message = $"No Record found."
+                        }
+                    };
+
+                    return Results.NotFound(errorResponse);
                 }
 
                 return Results.Ok(Result);
@@ -124,7 +176,17 @@ namespace FleetGuardAPI
 
                 if (Result == null)
                 {
-                    return Results.NotFound($"No Record found.");
+
+                    var errorResponse = new ApiError
+                    {
+                        Error = new ApiError.ErrorDetails
+                        {
+                            Code = "not_found",
+                            Message = $"No Record found."
+                        }
+                    };
+
+                    return Results.NotFound(errorResponse);
                 }
 
                 return Results.Ok(Result);
@@ -140,7 +202,7 @@ namespace FleetGuardAPI
 
             app.UseHttpsRedirection();
 
-            app.UseMiddleware<LoggingMiddleware>();
+           
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseResponseCompression();
             app.UseAuthorization();

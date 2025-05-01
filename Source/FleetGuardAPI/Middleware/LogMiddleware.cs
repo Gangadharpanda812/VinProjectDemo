@@ -60,18 +60,21 @@ namespace FleetGuardAPI.Middleware
                         ";
 
             _logger.LogInformation(logMessage);
-            InsertApiLogDto insertApiLogDto = new InsertApiLogDto()
+            if (context.Request.Path.ToString().Contains("/api/v1/vehicle"))
             {
+                InsertApiLogDto insertApiLogDto = new InsertApiLogDto()
+                {
                 
-                StartTime = requestTime,
-                EndTime = DateTime.UtcNow,
-                Duration = stopwatch.ElapsedMilliseconds,
-                LogType = "RequestResponseLog",
-                RequestMethod = context.Request.Method,
-                RequestPath = context.Request.Path,
-                ResponseStatusCode = context.Response.StatusCode
-            };
-            var  ouput = await _apilogsServices.AddApilog(insertApiLogDto);
+                    StartTime = requestTime,
+                    EndTime = DateTime.UtcNow,
+                    Duration = stopwatch.ElapsedMilliseconds,
+                    LogType = "RequestResponseLog",
+                    RequestMethod = context.Request.Method,
+                    RequestPath = context.Request.Path,
+                    ResponseStatusCode = context.Response.StatusCode
+                };
+                var  ouput = await _apilogsServices.AddApilog(insertApiLogDto);
+            }
         }
     }
 
