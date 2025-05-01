@@ -59,6 +59,12 @@ namespace FleetGuardAPI
                 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             #endregion
 
+
+            #region outputcache
+
+            builder.Services.AddResponseCaching();
+
+            #endregion
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -72,7 +78,7 @@ namespace FleetGuardAPI
 
             app.UseMiddleware<LoggingMiddleware>();
 
-            app.MapGet("/api/v1/vehicle/{vin}", async (string vin, IVehicleServices vehicleServices, ILogger<Program> logger) =>
+            app.MapGet("/api/v1/vehicle/{vin}", async (string vin, IVehicleServices vehicleServices, ILogger<Program> logger, HttpContext context) =>
             {
                 if (string.IsNullOrWhiteSpace(vin))
                 {
@@ -118,6 +124,15 @@ namespace FleetGuardAPI
 
                     return Results.NotFound(errorResponse);
                 }
+
+                // Only set headers when returning 200
+                context.Response.GetTypedHeaders().CacheControl = new()
+                {
+                    Public = true,
+                    MaxAge = TimeSpan.FromMinutes(5)
+                };
+
+                context.Response.Headers["Vary"] = "Accept-Encoding";
 
                 return Results.Ok(vehicle);
             })

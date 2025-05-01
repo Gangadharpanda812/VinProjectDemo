@@ -50,16 +50,9 @@ namespace FleetGuardAPI.Middleware
             await responseBody.CopyToAsync(originalBodyStream);
 
             // Log everything in one go
-            var logMessage = $@"[RequestResponseLog] 
-                        Timestamp Start : {requestTime:O} Timestamp End   : {DateTime.UtcNow:O}
-                        Duration        : {stopwatch.ElapsedMilliseconds} ms
-                        Request         : {context.Request.Method} {context.Request.Path}
-                        Request Body    : {requestBody}
-                        Response Code   : {context.Response.StatusCode}
-                        Response Body   : {responseText}
-                        ";
+            //var logMessage = $@"[RequestResponseLog] Timestamp Start: {requestTime:O} Timestamp End: {DateTime.UtcNow:O}Duration:{stopwatch.ElapsedMilliseconds} ms Request: {context.Request.Method} {context.Request.Path}Request Body:{requestBody}Response Code: {context.Response.StatusCode}";
 
-            _logger.LogInformation(logMessage);
+            //_logger.LogInformation(logMessage);
             if (context.Request.Path.ToString().Contains("/api/v1/vehicle"))
             {
                 InsertApiLogDto insertApiLogDto = new InsertApiLogDto()
